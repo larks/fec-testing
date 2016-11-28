@@ -2,8 +2,11 @@
 # testSCA.py
 # Test for talking to the GBT-SCA
 import sys
+import csv # pedestals
 
 # Lloyd stuff
+sys.path.append('../tpc-fec-testing')
+sys.path.append('../tpc-fec-testing/pyFEC')
 import FEC_IO as fec_io
 
 
@@ -67,22 +70,28 @@ fec.WriteConverted("GPIO_W_DATAOUT","GPIO",0x1)
 #print findact.msg
 
 # SAMPA_write_pedestal_reg(node,deviceaddr,sampa_chan_addr,sampa_pedestal_addr,val)
-fec.SAMPA_write_pedestal_reg("I2C4",0,0,0,0xBA)
-fec.SAMPA_write_pedestal_reg("I2C4",0,0,1,0x11)
-fec.SAMPA_write_pedestal_reg("I2C4",0,0,2,0x50)
-test = [0,0,0]
+for g in range(0,40):
+  fec.SAMPA_write_pedestal_reg("I2C4",0,0,0,0xBA)
+  fec.SAMPA_write_pedestal_reg("I2C4",0,0,1,0x11)
+  fec.SAMPA_write_pedestal_reg("I2C4",0,0,2,0x50)
+  test = [0,0,0]
+  # Check status
+  valh = fec.ReadDirect("I2C_R_STR", "I2C4")
+  valh = valh & 0xFF
+  print("I2C status: 0x%X" % valh)
+  print("####### Read back: #######")
+  for i in range(0,3):
+    # SAMPA_read_pedestal_reg(node,deviceaddr,channel,sampa_pedestal_addr)
+    test[i] = fec.SAMPA_read_pedestal_reg("I2C4",0,0,i)
+    if((test[i]==0xBA) & (i==0)):
+      print("0x%X: OK" %test[i])
+    elif((test[i]==0x11) & (i==1)):
+      print("0x%X: OK" %test[i])
+    elif((test[i]==0x50) & (i==2)):
+      print("0x%X: OK" %test[i])
+    else:
+      print("%X: FAIL" %test[i])
 
-valh = fec.ReadDirect("I2C_R_STR", "I2C4")
-valh = valh & 0xFF
-print("I2C status: 0x%X" % valh)
-#val = fec.GBT_SCA_I2C_Read("I2C0", 0, 0x22)
-#print ("I2C_Status: 0x%X" % val)
-
-
-for i in range(0,3):
-	# SAMPA_read_pedestal_reg(node,deviceaddr,channel,sampa_pedestal_addr)
-	test[i] = fec.SAMPA_read_pedestal_reg("I2C4",0,0,i)
-	print("%X" %test[i])
 
 valh = fec.ReadDirect("I2C_R_STR", "I2C4")
 valh = valh & 0xFF
