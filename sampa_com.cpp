@@ -4,6 +4,8 @@
 #include <sstream>
 #include "gbt_sca.hpp"
 
+// Move this crap to a header file
+
 // Channel definitions
 enum Channel { 
   NODE = 0x0,
@@ -44,7 +46,7 @@ enum ControlRegisterD {
   ENDAC  = 0x20
 };
 
-enum commandsGPIO {
+enum gpioCommands {
   GPIO_W_DATAOUT   = 0x10,
   GPIO_R_DATAOUT   = 0x11,
   GPIO_R_DATAIN    = 0x01,
@@ -65,9 +67,37 @@ enum commandsGPIO {
 };
 
 
+// I2C Register masks
+enum i2cCtrlRegisterMask {
+  FREQ    = 0x3,  // 0b00->100kHz, 0b01->200kHz, 0b10->400kHz, 0b11->1MHz
+  NBYTE   = 0x7C, // I2C transmission length (num of bytes)
+  SCLMODE = 0x80  // 0: open-drain, 1: CMOS output
+};
+// Use I2C_R_STR to read
+enum i2cStatusRegisterMask {
+  SUCC   = 0x4,  // Set if last transaction was a success
+  LEVERR = 0x8,  // Set if master finds the SDA line pulled low before transaction.
+  INVCOM = 0x20, // Set if invalid command was sent to the I2C channel, cleared by channel reset
+  NOACK  = 0x40, // Set if last operation has not been acked by the slave ack. Set/reset at end of each transaction.
+};
+// I2C commands
+enum i2cStartOfTransmissionCommands {
+  I2C_S_7B_W  = 0x82, // single byte write, 7-bit addressing, LEN=2
+  I2C_S_7B_R  = 0x86, // single byte read, 7-bit addressing, LEN=2
+  I2C_S_10B_W = 0x8A, // single byte write, 10-bit addressing, LEN=3
+  I2C_S_10B_R = 0x8E, // single byte read, 10-bit addressing, LEN=2
+  I2C_M_7B_W  = 0xDA, // multi byte write, 7-bit addressing, LEN=1
+  I2C_M_7B_R  = 0xDE, // multi byte read, 7-bit addressing, LEN=1
+  I2C_M_10B_W = 0xE2, // multi byte write, 10-bit addressing, LEN=2
+  I2C_M_10B_R = 0xE6 // multi byte read, 10-bit addressing, LEN=2
+//  I2C_RMW_AND = hmmm...
+};
 
-enum 
-
+enum i2cCommands {
+  I2C_W_CTRL = 0x30, // Write CONTROL register
+  I2C_R_CTRL = 0x31, // Read CONTROL register 
+  I2C_R_STR  = ...
+};
 int main(int argc, char** argv) 
 { 
 
