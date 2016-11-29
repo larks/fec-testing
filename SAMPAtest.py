@@ -5,6 +5,8 @@ import sys
 import csv # pedestals
 import time
 
+import csv
+
 # Lloyd stuff
 sys.path.append('../tpc-fec-testing')
 sys.path.append('../tpc-fec-testing/pyFEC')
@@ -88,13 +90,30 @@ fec.SAMPA_write_pedestal_reg("I2C4", 0, 5, 231, 0x12)
 # readback?
 startTime = time.time() # time this shit
 print("I2C_R_CTRL I2C4: 0x%X" % fec.ReadDirect("I2C_R_CTRL","I2C4"))
+
+outFile = open('Pedestals.csv', 'wb')
+#writer = csv.writer(outFile, delimiter=',',quotechar='"', quoting=csv.QUOTE_NONNUMERIC )
+
 for Channel in range(0,32):
-    for PedestalAddr in range(0, 1024):
-      PedVal = fec.SAMPA_read_pedestal_reg("I2C4", 0, Channel, PedestalAddr)
-      #cProfile.run('PedVal = fec.SAMPA_read_pedestal_reg("I2C4", 0, Channel, PedestalAddr)') # check time spent
-      if (PedVal != PedestalAddr):
-        print("FEIL Ch: %d PedAddr: %d, Got: 0x%X" %(Channel, PedestalAddr, PedVal))
-print ("Read took %d s" % int(time.time() - startTime))   
+  for PedestalAddr in range(0, 1024):
+    PedVal = fec.SAMPA_read_pedestal_reg("I2C4", 0, Channel, PedestalAddr)
+    #cProfile.run('PedVal = fec.SAMPA_read_pedestal_reg("I2C4", 0, Channel, PedestalAddr)') # check time spent
+    if (PedVal != PedestalAddr):
+      print("FEIL Ch: %d PedAddr: %d, Got: 0x%X" %(Channel, PedestalAddr, PedVal))
+      #writer.writerow("Error")
+      if(PedestalAddr == 1023):      
+        outFile.write('-1.{}\n'.format(PedVal))
+      else:
+        outFile.write('-1.{},'.format(PedVal))
+    else:
+      if(PedestalAddr != 1023):
+        outFile.write('{},'.format(outLine))
+      else:
+        outFile.write('{}\n'.format(PedVal))
+        
+    
+print ("Read took %d s" % int(time.time() - startTime))
+outFile.close()
 
 
 valh = fec.ReadDirect("I2C_R_STR", "I2C4")
