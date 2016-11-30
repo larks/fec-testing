@@ -72,8 +72,9 @@ enum i2cCtrlRegisterMask {
   SCLMODE = 0x80  // 0: open-drain, 1: CMOS output
 };
 #endif
-struct i2cCTRL {
-  uint8_t FREQ    : 2, // bits 0-1
+struct i2cCTRL { // not really great, since the ordering depends on endianness
+  uint8_t 
+	FREQ    : 2, // bits 0-1
     NBYTE   : 5, // bits 2-6
     SCLMODE : 1; // bit 7
 };
@@ -115,4 +116,3 @@ enum i2cCommands {
   I2C_W_DATA3 = 0x70, // Write data reg. bytes 12-15, LEN=4
   I2C_R_DATA3 = 0x71, // Write data reg. bytes 12-15, LEN=4
 };
-

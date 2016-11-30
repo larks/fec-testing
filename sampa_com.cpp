@@ -5,6 +5,20 @@
 #include "gbt_sca.hpp"
 #include "gbt_register_defs.hpp"
 
+// NBYTE   : Defines I2C transmission length, only for multi-byte transmissions
+// FREQ    : Communication speed
+//           00->100 kHz, 01->200 kHz, 10->400 kHz, 11->1 MHz (default)
+// SCLMODE : Define SCL functionality, 0 or 1
+uint8_t i2cCTRL(uint8_t NBYTE, uint8_t FREQ = 3, uint8_t SCLMODE = 0) 
+{
+	return ( (FREQ & 0x3) | ((NBYTE<<2) & 0x7C) | ((SCLMODE<<7)&0x80) )
+};
+
+uint32_t convert32(value)
+{
+	return (value & 0xff) << 24 | (value & 0xff00) << 8 | (value >> 8) & 0xff00 | (value >> 24) & 0xff;
+}
+
 // Main loop
 int main(int argc, char** argv) 
 { 
@@ -52,13 +66,27 @@ int main(int argc, char** argv)
   std::cout << "Board ID: 0x" << std::hex << boardID << std::endl;
 
   // Check GBTx
+  #if 0
   i2cCTRL ctrl;// = {1};
   ctrl.NBYTE = 2;
   uint32_t test = 0xd;
-  std::cout << " Sizeof(ctrl): " <<  sizeof(ctrl) << "test: "<< std::hex<<test << std::endl;
+  std::cout << "ctrl.NBYTE: 0x" std::hex << ctrl.NBYTE+0  << " Sizeof(ctrl): " <<  sizeof(ctrl) << "test: "<< std::hex<<test << std::endl;
   //tRequest = {4, I2C0, 2, I2C_W_CTRL, ctrl};
   uint32_t effregaddr;
-
+#endif
+	tRequest = {4, I2C0, 2, I2C_W_CTRL, i2cCTRL(NBYTE=2)};
+	exec_command(tRequest, tReply);
+	uint32_t regaddr = 365, devaddr = 15; 
+	uint32_t effregaddr = (regaddr<<24) | (regaddr&0xff00)<<8;
+	tRequest = {5, I2C0, 4, I2C_W_DATA0, convert32(effregaddr)};
+	exec_command(tRequest, tReply);
+	tRequest = {6, I2C0, 1, I2C_M_7B_W, devaddr};
+	exec_command(tRequest, tReply);
+	// put a wait here
+	tRequest = {7, I2C0, 2, I2C_S_7B_R, devaddr};
+	exec_command(tRequest, tReply);
+	std::cout << tRequest << std::endl;
+	std::cout << tReply << std::endl;
 return 0; 
  
 } // main
