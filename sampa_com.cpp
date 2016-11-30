@@ -50,6 +50,15 @@ int main(int argc, char** argv)
   uint32_t boardID = (convertedData>>10) & 0xfff;
   std::cout << "Converted data: 0x" << std::hex << convertedData << std::endl;
   std::cout << "Board ID: 0x" << std::hex << boardID << std::endl;
+
+  // Check GBTx
+  i2cCTRL ctrl;// = {1};
+  ctrl.NBYTE = 2;
+  uint32_t test = 0xd;
+  std::cout << " Sizeof(ctrl): " <<  sizeof(ctrl) << "test: "<< std::hex<<test << std::endl;
+  //tRequest = {4, I2C0, 2, I2C_W_CTRL, ctrl};
+  uint32_t effregaddr;
+
 return 0; 
  
 } // main

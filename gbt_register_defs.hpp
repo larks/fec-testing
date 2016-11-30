@@ -65,11 +65,19 @@ enum gpioCommands {
 
 
 // I2C Register masks
+#if 0
 enum i2cCtrlRegisterMask {
   FREQ    = 0x3,  // 0b00->100kHz, 0b01->200kHz, 0b10->400kHz, 0b11->1MHz
   NBYTE   = 0x7C, // I2C transmission length (num of bytes)
   SCLMODE = 0x80  // 0: open-drain, 1: CMOS output
 };
+#endif
+struct i2cCTRL {
+  uint8_t FREQ    : 2, // bits 0-1
+    NBYTE   : 5, // bits 2-6
+    SCLMODE : 1; // bit 7
+};
+
 // Use I2C_R_STR to read
 enum i2cStatusRegisterMask {
   SUCC   = 0x4,  // Set if last transaction was a success
@@ -93,11 +101,11 @@ enum i2cStartOfTransmissionCommands {
 };
 
 enum i2cCommands {
-  I2C_W_CTRL  = 0x30, // Write CONTROL register
-  I2C_R_CTRL  = 0x31, // Read CONTROL reg 
-  I2C_R_STR   = 0x11, // Read STATUS reg 
-  I2C_W_MSK   = 0x20, // Write MASK reg
-  I2C_R_MSK   = 0x21, // Read MASK reg
+  I2C_W_CTRL  = 0x30, // Write CONTROL reg, LEN=2
+  I2C_R_CTRL  = 0x31, // Read CONTROL reg, LEN=2
+  I2C_R_STR   = 0x11, // Read STATUS reg, LEN=2
+  I2C_W_MSK   = 0x20, // Write MASK reg, LEN=2
+  I2C_R_MSK   = 0x21, // Read MASK reg, LEN=2
   I2C_W_DATA0 = 0x40, // Write data reg. bytes 0-3, LEN=4
   I2C_R_DATA0 = 0x41, // Write data reg. bytes 0-3, LEN=4
   I2C_W_DATA1 = 0x50, // Write data reg. bytes 4-7, LEN=4
