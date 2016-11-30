@@ -82,22 +82,36 @@ enum i2cStatusRegisterMask {
 };
 // I2C commands
 enum i2cStartOfTransmissionCommands {
-  I2C_S_7B_W  = 0x82, // single byte write, 7-bit addressing, LEN=2
-  I2C_S_7B_R  = 0x86, // single byte read, 7-bit addressing, LEN=2
-  I2C_S_10B_W = 0x8A, // single byte write, 10-bit addressing, LEN=3
-  I2C_S_10B_R = 0x8E, // single byte read, 10-bit addressing, LEN=2
-  I2C_M_7B_W  = 0xDA, // multi byte write, 7-bit addressing, LEN=1
-  I2C_M_7B_R  = 0xDE, // multi byte read, 7-bit addressing, LEN=1
-  I2C_M_10B_W = 0xE2, // multi byte write, 10-bit addressing, LEN=2
-  I2C_M_10B_R = 0xE6 // multi byte read, 10-bit addressing, LEN=2
-//  I2C_RMW_AND = hmmm...
+  I2C_S_7B_W  = 0x82, // Single byte write, 7-bit addressing, LEN=2
+  I2C_S_7B_R  = 0x86, // Single byte read, 7-bit addressing, LEN=2
+  I2C_S_10B_W = 0x8A, // Single byte write, 10-bit addressing, LEN=3
+  I2C_S_10B_R = 0x8E, // Single byte read, 10-bit addressing, LEN=2
+  I2C_M_7B_W  = 0xDA, // Multi byte write, 7-bit addressing, LEN=1
+  I2C_M_7B_R  = 0xDE, // Multi byte read, 7-bit addressing, LEN=1
+  I2C_M_10B_W = 0xE2, // Multi byte write, 10-bit addressing, LEN=2
+  I2C_M_10B_R = 0xE6, // Multi byte read, 10-bit addressing, LEN=2
+//  I2C_RMW_AND = hmmm... missing command in data sheet
+  I2C_RMW_OR  = 0xC6, // Start read-modify-write with AND mask
+  I2C_RMW_XOR = 0xCA, // Start read-modify-write with XOR mask
 };
 
 enum i2cCommands {
-  I2C_W_CTRL = 0x30, // Write CONTROL register
-  I2C_R_CTRL = 0x31, // Read CONTROL register 
-  I2C_R_STR  = ...
+  I2C_W_CTRL  = 0x30, // Write CONTROL register
+  I2C_R_CTRL  = 0x31, // Read CONTROL reg 
+  I2C_R_STR   = 0x11, // Read STATUS reg 
+  I2C_W_MSK   = 0x20, // Write MASK reg
+  I2C_R_MSK   = 0x21, // Read MASK reg
+  I2C_W_DATA0 = 0x40, // Write data reg. bytes 0-3, LEN=4
+  I2C_R_DATA0 = 0x41, // Write data reg. bytes 0-3, LEN=4
+  I2C_W_DATA1 = 0x50, // Write data reg. bytes 4-7, LEN=4
+  I2C_R_DATA1 = 0x51, // Write data reg. bytes 4-7, LEN=4
+  I2C_W_DATA2 = 0x60, // Write data reg. bytes 8-11, LEN=4
+  I2C_R_DATA2 = 0x61, // Write data reg. bytes 8-11, LEN=4
+  I2C_W_DATA3 = 0x70, // Write data reg. bytes 12-15, LEN=4
+  I2C_R_DATA3 = 0x71, // Write data reg. bytes 12-15, LEN=4
 };
+
+// Main loop
 int main(int argc, char** argv) 
 { 
 
@@ -125,29 +139,23 @@ int main(int argc, char** argv)
   std::cout << tReply << std::endl;
   
   // GBT_SCA_I2C_Read("I2C0", 15, 365)
-  tRequest = {}
 
-#if 0
-  tRequest = {1, GPIO, 2, GPIO_W_DIRECTION, 0x1f}; // Enable GPIO
+  tRequest = {2, GPIO, 2, (GPIO_R_DIRECTION)}; // Read GPIO read direction register
   sca.exec_command(tRequest, tReply);
   std::cout << tRequest << std::endl;
   std::cout << tReply << std::endl;
-  tRequest = {1, GPIO, 2, GPIO_W_DATAOUT, 0x1f}; // Enable GPIO
+  
+  tRequest = {3, GPIO, 1, (GPIO_R_DATAIN)}; // Read GPIO
   sca.exec_command(tRequest, tReply);
   std::cout << tRequest << std::endl;
   std::cout << tReply << std::endl;
- 
-  tRequest = {1, GPIO, 4, GPIO_R_DATAIN, 0xFF}; // Enable GPIO
-  sca.exec_command(tRequest, tReply);
+  
   uint32_t reply = tReply.data;
   uint32_t convertedData;
   convertedData = ((reply & 0xff)<<24) | ((reply&0xff00)<<8) | ((reply>>8)&0xff00) | ((reply>>24)&0xff);  
   uint32_t boardID = (convertedData>>10) & 0xfff;
-  std::cout << tRequest << std::endl;
-  std::cout << tReply << std::endl;
-  std::cout << "Converted data: " << convertedData << std::endl;
-  std::cout << "Board ID: " << boardID << std::endl;
-#endif
+  std::cout << "Converted data: 0x" << std::hex << convertedData << std::endl;
+  std::cout << "Board ID: 0x" << std::hex << boardID << std::endl;
 return 0; 
  
 } // main

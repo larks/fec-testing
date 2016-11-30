@@ -64,35 +64,41 @@ print("gbld_ID: 0x%X" % valh)
 #val = fec.SAMPA_read_global_reg("I2C0",0,0x22)
 
 #fec.EnableSampa(1)
-fec.WriteConverted("GPIO_W_DATAOUT","GPIO",0x1)
+#fec.WriteConverted("GPIO_W_DATAOUT","GPIO",0x1)
 
 #findact = fec.findActiveSampas(0)
 #print findact.msg
 
-# SAMPA_write_pedestal_reg(node,deviceaddr,sampa_chan_addr,sampa_pedestal_addr,val)
-for g in range(0,40):
-  fec.SAMPA_write_pedestal_reg("I2C4",0,0,0,0xBA)
-  fec.SAMPA_write_pedestal_reg("I2C4",0,0,1,0x11)
-  fec.SAMPA_write_pedestal_reg("I2C4",0,0,2,0x50)
-  test = [0,0,0]
-  # Check status
-  valh = fec.ReadDirect("I2C_R_STR", "I2C4")
-  valh = valh & 0xFF
-  print("I2C status: 0x%X" % valh)
-  print("####### Read back: #######")
-  for i in range(0,3):
-    # SAMPA_read_pedestal_reg(node,deviceaddr,channel,sampa_pedestal_addr)
-    test[i] = fec.SAMPA_read_pedestal_reg("I2C4",0,0,i)
-    if((test[i]==0xBA) & (i==0)):
-      print("0x%X: OK" %test[i])
-    elif((test[i]==0x11) & (i==1)):
-      print("0x%X: OK" %test[i])
-    elif((test[i]==0x50) & (i==2)):
-      print("0x%X: OK" %test[i])
-    else:
-      print("%X: FAIL" %test[i])
+## SAMPA_write_pedestal_reg(node,deviceaddr,sampa_chan_addr,sampa_pedestal_addr,val)
+#for g in range(0,0):
+#  print("######## Writing #########")
+#  fec.SAMPA_write_pedestal_reg("I2C4",0,0,0,0xBA)
+#  fec.SAMPA_write_pedestal_reg("I2C4",0,0,1,0x11)
+#  fec.SAMPA_write_pedestal_reg("I2C4",0,0,2,0x50)
+#  test = [0,0,0]
+#  # Check status
+#  valh = fec.ReadDirect("I2C_R_STR", "I2C4")
+#  valh = valh & 0xFF
+#  clkval = fec.SAMPA_read_global_reg("I2C4",0,0x22)
+#  print("CLKCONF: 0x%X" % clkval)
+#  print("I2C status: 0x%X" % valh)
+#  print("####### Read back: #######")
+#  for i in range(0,0):
+#    # SAMPA_read_pedestal_reg(node,deviceaddr,channel,sampa_pedestal_addr)
+#    test[i] = fec.SAMPA_read_pedestal_reg("I2C4",0,0,i)
+#    if((test[i]==0xBA) & (i==0)):
+#      print("0x%X: OK" %test[i])
+#    elif((test[i]==0x11) & (i==1)):
+#      print("0x%X: OK" %test[i])
+#    elif((test[i]==0x50) & (i==2)):
+#      print("0x%X: OK" %test[i])
+#    else:
+#      print("%X: FAIL" %test[i])
+#  valh = fec.ReadDirect("I2C_R_STR", "I2C4")
+#  valh = valh & 0xFF
+#  print("I2C status: 0x%X" % valh)
+#  print("##########################")
 
-
-valh = fec.ReadDirect("I2C_R_STR", "I2C4")
-valh = valh & 0xFF
-print("I2C status: 0x%X" % valh)
+#valh = fec.ReadDirect("I2C_R_STR", "I2C4")
+#valh = valh & 0xFF
+#print("I2C status: 0x%X" % valh)

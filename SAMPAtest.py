@@ -102,9 +102,9 @@ for Channel in range(0,32):
       print("FEIL Ch: %d PedAddr: %d, Got: 0x%X" %(Channel, PedestalAddr, PedVal))
       #writer.writerow("Error")
       if(PedestalAddr == 1023):      
-        outFile.write('-1.{}\n'.format(PedVal))
+        outFile.write('-{}\n'.format(PedVal))
       else:
-        outFile.write('-1.{},'.format(PedVal))
+        outFile.write('-{},'.format(PedVal))
     else:
       if(PedestalAddr != 1023):
         outFile.write('{},'.format(outLine))
